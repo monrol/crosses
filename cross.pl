@@ -3,6 +3,9 @@
 #  Game noughts and crosses
 #
 use strict;
+use warnings;
+
+use Wx;
 use Data::Dumper;
 
 my @board = ([10, 10, 10,],[10, 10, 10,],[10, 10, 10,]);
@@ -12,10 +15,10 @@ my @playere_move = ();
 &current_board(@board);
 
 my $bw = 1;
-foreach (1..6)
+foreach (1..9)
 {
     $bw = ($bw == 0) ? 1 : 0;
-    push( @playere_move, &make_move(@playere_move));
+    push( @playere_move, &make_move(\@playere_move, \@board, $bw));
     #print Dumper(\@playere_move)."\n\n";
     @board = update_board(\@board, $playere_move[-1], $bw);
     my $score = count_score(\@board);
@@ -110,13 +113,29 @@ sub current_board
 
 sub make_move
 {
-    my @player = @_;
+    my ( $player, $board, $bw ) = @_;
+    my $other;
+    $other = ( $bw == 0 ) ? 1 : 0;
+    my @player = @{$player};
+    my @board = @{$board};
+
     print "Make your move (numbers 0-8):";
-    my $move = <STDIN>;
-    chomp($move);
-    my ($x, $y) = &convert($move);
-    print "You make your choise, its: $move or in machine code $x:$y\n";
-    print "Going to update board...\n";
+    my ($x, $y, $move);
+    while ( $move = <STDIN> )
+    {
+        chomp($move);
+        ($x, $y) = &convert($move);
+        print "You have made your choise, its: $move \n";
+            #print "Going to update board...\n";
+        # update board
+        if ( $board[$x][$y] == 10 ){
+            $board[$x][$y] = $bw;
+            print "Going to update board...\n";
+            last;
+        } else {
+            print "This position occupied. Try again: \n";   
+        }
+    }
     push(@player, \($x, $y));
     return $move;
 }
