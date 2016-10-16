@@ -14,7 +14,9 @@ my @playere_move = ();
 
 &current_board(@board);
 
-my $bw = 1;
+my %define_bw = ( 0=>'h', 1=>'c' );
+my %start = each(%define_bw);
+my ($bw) = keys %start;
 foreach (1..9)
 {
     $bw = ($bw == 0) ? 1 : 0;
@@ -116,14 +118,20 @@ sub make_move
     my ( $player, $board, $bw ) = @_;
     my $other;
     $other = ( $bw == 0 ) ? 1 : 0;
+    my $player_type = $define_bw{$bw};
     my @player = @{$player};
     my @board = @{$board};
 
-    print "Make your move (numbers 0-8):";
+    print "Make your move (numbers 0-8):" if ( $player_type eq 'h' );
     my ($x, $y, $move);
-    while ( $move = <STDIN> )
+    do
     {
-        chomp($move);
+        if ( $player_type eq 'h' ) {
+            $move = <STDIN>;
+            chomp($move);
+        } else {
+            $move = &robot();    
+        }
         ($x, $y) = &convert($move);
         print "You have made your choise, its: $move \n";
             #print "Going to update board...\n";
@@ -131,11 +139,11 @@ sub make_move
         if ( $board[$x][$y] == 10 ){
             $board[$x][$y] = $bw;
             print "Going to update board...\n";
-            last;
+            return $move;
         } else {
             print "This position occupied. Try again: \n";   
         }
-    }
+    } while ( 1 );
     push(@player, \($x, $y));
     return $move;
 }
@@ -146,4 +154,10 @@ sub convert
     my $x = int($num/3);
     my $y = $num - (3*$x);
     return ($x, $y);   
+}
+
+sub robot
+{
+    my $random = int(rand(8));
+    return ($random);
 }
